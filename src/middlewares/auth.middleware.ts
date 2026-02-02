@@ -17,9 +17,9 @@ export function authMiddleware(
         email: user?._email,
         id: user?._id,
         role: user?._role,
-        joinedAt: "",
-        state: "",
-        password: "",
+        joinedAt: null,
+        state: null,
+        password: null,
       }
       next();
     } else {

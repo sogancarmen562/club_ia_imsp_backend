@@ -135,6 +135,19 @@ class AuthentificationController implements Controller {
      *         description: OK
      */
     this.router.post(`${this.paths}/logout`, this.loggingOut);
+
+    /**
+     * @swagger
+     * /api/auth/me:
+     *    get:
+     *      tags:
+     *        - Authentification
+     *      summary: S'authentifier
+     *      operationId: "authenticate"
+     *      responses:
+     *        '200':
+     *          description: OK
+     */
     this.router.get(`${this.paths}/me`, authMiddleware, this.authenticate);
   }
 
@@ -143,12 +156,7 @@ class AuthentificationController implements Controller {
     response: express.Response,
   ) => {
     try {
-      response.status(201).send(
-        new Result(true, "the value", {
-          isTrue: true,
-          user: request.user,
-        }),
-      );
+      response.status(201).send(new Result(true, "the value", request.user));
     } catch (error) {
       if (error instanceof HttpException) {
         response
