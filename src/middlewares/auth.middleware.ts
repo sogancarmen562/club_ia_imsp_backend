@@ -1,5 +1,3 @@
-import AuthenticationTokenMissingException from "../exceptions/AuthenticationTokenMissingException";
-import WrongAuthenticationTokenException from "../exceptions/WrongAuthentificationTokenException";
 import express from "express";
 import RequestWithUser from "interfaces/requestWithUser.interface";
 import jwt from "jsonwebtoken";
@@ -11,24 +9,24 @@ export function authMiddleware(
   response: express.Response,
   next: express.NextFunction
 ) {
-  const cookies = request.cookies;
-  if (cookies && cookies.Authorization) {
-    const user = decodedToken(cookies.Authorization);
+  const token = request.headers['authorization'];
+  if (token) {
+    const user = decodedToken(token.split(' ')[1]);
     if (Number(user?._id) > 0) {
       request.user = {
         email: user?._email,
         id: user?._id,
         role: user?._role,
-        data_inscription: "",
+        joinedAt: "",
         state: "",
         password: "",
-      };
+      }
       next();
     } else {
-      response.send(new Result(false, "Wrong credentials provided!", null));
+      response.send(new Result(false, "Wrong credentials provided", null));
     }
   } else {
-    response.send(new Result(false, "Wrong authentication token!", null));
+    response.send(new Result(false, "Wrong authentication token", null));
     // next(new AuthenticationTokenMissingException());
   }
 }

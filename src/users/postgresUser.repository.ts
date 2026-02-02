@@ -1,8 +1,6 @@
 import { Pool } from "pg";
 import IUserRepository from "./usersRepository.interface";
 import { Users } from "./user.interface";
-import { AddEmailDto } from "email/email.dto";
-import { UpdateUserAccountDto } from "./user.dto";
 import Email from "email/email.interface";
 
 class PostgresUserRepository implements IUserRepository {
@@ -14,9 +12,9 @@ class PostgresUserRepository implements IUserRepository {
       user: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DATABASE,
-      ssl: {
-        rejectUnauthorized: false,
-      },
+      // ssl: {
+      //   rejectUnauthorized: false,
+      // },
     });
   }
 
@@ -24,7 +22,7 @@ class PostgresUserRepository implements IUserRepository {
     return {
       id: rowUser.id,
       email: rowUser.email,
-      data_inscription: rowUser.date_inscription.toLocaleDateString("fr-FR", {
+      joinedAt: rowUser.joined_at.toLocaleDateString("fr-FR", {
         day: "2-digit",
         month: "2-digit",
         year: "numeric",
@@ -37,15 +35,19 @@ class PostgresUserRepository implements IUserRepository {
 
   private convertRowToEmail(rowEmailCreated: any): Email {
     return {
-      the_email: rowEmailCreated.email,
-      date_inscription: rowEmailCreated.date_inscription,
+      email: rowEmailCreated.email,
+      joinedAt: rowEmailCreated.joined_at.toLocaleDateString("fr-FR", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      }),
     };
   }
 
   public async getAllEmail(): Promise<Email[] | []> {
     try {
       const results = await this.pool.query(
-        "SELECT * FROM subscriber WHERE password IS NULL;"
+        "SELECT * FROM subscriber WHERE password IS NULL;",
       );
       if (results) {
         const emails: Email[] = results.rows.map((result) => {
@@ -67,17 +69,17 @@ class PostgresUserRepository implements IUserRepository {
     try {
       const result = await this.pool.query(
         "SELECT * FROM subscriber WHERE email = $1;",
-        [email]
+        [email],
       );
       return this.convertRowToUser(result.rows[0]);
     } catch (error) {}
   }
 
-  public async getUserById(userId: string): Promise<Users> {
+  public async getUserById(userId: number): Promise<Users> {
     try {
       const result = await this.pool.query(
         "SELECT * FROM subscriber WHERE id = $1;",
-        [userId]
+        [userId],
       );
       return this.convertRowToUser(result.rows[0]);
     } catch (error) {}
@@ -87,21 +89,21 @@ class PostgresUserRepository implements IUserRepository {
     email: string,
     role: string,
     passwordHashed?: string,
-    state?: string
+    state?: string,
   ): Promise<Users> {
     try {
       const result = await this.pool.query(
         `
-        INSERT INTO subscriber(email, date_inscription, password, role, state) 
+        INSERT INTO subscriber(email, joined_at, password, role, state) 
             VALUES ($1, $2, $3, $4, $5) RETURNING *;
         `,
-        [email, new Date(), passwordHashed, role, state]
+        [email, new Date(), passwordHashed, role, state],
       );
       return this.convertRowToUser(result.rows[0]);
     } catch (error) {}
   }
 
-  public async deleteUser(userId: string): Promise<void> {
+  public async deleteUser(userId: number): Promise<void> {
     try {
       await this.pool.query("DELETE FROM subscriber WHERE id = $1", [userId]);
     } catch (error) {}
@@ -111,7 +113,7 @@ class PostgresUserRepository implements IUserRepository {
     try {
       const results = await this.pool.query(
         "SELECT * FROM subscriber WHERE role = $1",
-        ["editor"]
+        ["editor"],
       );
       if (results.rowCount == 0) return [];
       return results.rows.map((result) => {
@@ -120,20 +122,27 @@ class PostgresUserRepository implements IUserRepository {
     } catch (error) {}
   }
 
-  public async updateMyAccount(
-    userId: string,
-    valueUpdated: UpdateUserAccountDto,
-    state: string
-  ): Promise<Users> {
+  public async activeAccount(userId: number, password: string): Promise<Users> {
     try {
       const result = await this.pool.query(
-        "UPDATE subscriber SET email = $1, password = $2, state = $3 WHERE id = $4 RETURNING *",
-        [valueUpdated.email, valueUpdated.password, state, userId]
+        "UPDATE subscriber SET password = $1, state = $2 WHERE id = $3 RETURNING *",
+        [password, "active", userId],
       );
       return this.convertRowToUser(result.rows[0]);
-    } catch (error) {
-      console.log(error);
-    }
+    } catch (error) {}
+  }
+
+  public async updatePassword(
+    userId: number,
+    password: string,
+  ): Promise<number> {
+    try {
+      await this.pool.query(
+        "UPDATE subscriber SET password = $1 WHERE id = $2",
+        [password, userId],
+      );
+      return userId;
+    } catch (error) {}
   }
 }
 

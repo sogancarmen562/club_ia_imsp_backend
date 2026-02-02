@@ -1,5 +1,5 @@
 interface DataStoredInToken {
-  _id: string;
+  _id: number;
   _role: string;
   _email: string;
 }

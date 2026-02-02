@@ -1,6 +1,6 @@
 interface Email {
-  the_email: string;
-  date_inscription: Date;
+  email: string;
+  joinedAt: Date;
 }
 
 export default Email;

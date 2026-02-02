@@ -1,7 +1,7 @@
 export interface Users {
-  id: string;
+  id: number;
   email: string;
-  data_inscription: string;
+  joinedAt: string;
   role: string;
   state: string;
   password: string;

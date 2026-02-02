@@ -1,9 +1,9 @@
 import HttpException from "./HttpException";
 
-class ArticleAlreadyException extends HttpException {
-  constructor(title: string) {
-    super(400, `Article with title ${title} already exist!`);
+class ContentAlreadyException extends HttpException {
+  constructor(title: string, type: string) {
+    super(400, `${type} with title ${title} already exist!`);
   }
 }
 
-export default ArticleAlreadyException;
+export default ContentAlreadyException;

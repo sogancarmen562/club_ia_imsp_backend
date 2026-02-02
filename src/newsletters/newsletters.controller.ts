@@ -3,10 +3,10 @@ import Controller from "interfaces/controllers.interface";
 import express from "express";
 import NewslettersService from "./newsletters.service";
 import EmailSendNodeMailerService from "../mail/sendMailNodeMailer.service";
-import validateDto from "../middlewares/validation.middleware";
+import {validateDto} from "../middlewares/validation.middleware";
 import { Result } from "../utils/utils";
 import HttpException from "../exceptions/HttpException";
-import { SendNewlettersDto } from "./newsletters.dto";
+import { SendNewlettersDto, SendNewsLetterDto } from "./newsletters.dto";
 import UserService from "../users/user.service";
 import PostgresUserRepository from "../users/postgresUser.repository";
 import GenerateCodeNanoIdService from "../generateCode/generateCode.service";
@@ -16,7 +16,7 @@ import { authMiddleware } from "../middlewares/auth.middleware";
 import AuthentificationService from "../authentification/authentification.service";
 
 class NewslettersController implements Controller {
-  public paths: string = "/newsletter";
+  public paths: string = "/api/newsletter";
   public router: Router = express.Router();
   private newslettersService = new NewslettersService(
     new EmailSendNodeMailerService(),
@@ -39,10 +39,10 @@ class NewslettersController implements Controller {
   public initializeRoutes() {
     /**
      * @swagger
-     * /newsletter:
+     * /api/newsletter:
      *   post:
      *     tags:
-     *       - newsletter
+     *       - Newsletter
      *     summary: Send newsletter
      *     operationId: "sendNewLetters"
      *     requestBody:
@@ -65,41 +65,41 @@ class NewslettersController implements Controller {
      *         subject:
      *           type: string
      *           example: "write a document"
-     *         message:
+     *         text:
      *           type: string
      *           example: "write a contain of mail"
      */
     this.router.post(
       this.paths,
-      validateDto(SendNewlettersDto),
       authMiddleware,
       authorizeRoles("admin", "editor"),
+      validateDto(SendNewsLetterDto),
       this.sendNewLetters
     );
 
-    /**
-     * @swagger
-     * /newsletter/{email}:
-     *   delete:
-     *     tags:
-     *       - newsletter
-     *     summary: unsubscriber of newsletter
-     *     operationId: "unsubscriber"
-     *     parameters:
-     *       - name: email
-     *         in: path
-     *         description: email
-     *         required: true
-     *         schema:
-     *           type: string
-     *     responses:
-     *       '200':
-     *         description: successful operation
-     *       '400':
-     *         description: Invalid ID supplied
-     *       '404':
-     *         description: Article not found
-     */
+    // /**
+    //  * @swagger
+    //  * /newsletter/{email}:
+    //  *   delete:
+    //  *     tags:
+    //  *       - newsletter
+    //  *     summary: unsubscriber of newsletter
+    //  *     operationId: "unsubscriber"
+    //  *     parameters:
+    //  *       - name: email
+    //  *         in: path
+    //  *         description: email
+    //  *         required: true
+    //  *         schema:
+    //  *           type: string
+    //  *     responses:
+    //  *       '200':
+    //  *         description: successful operation
+    //  *       '400':
+    //  *         description: Invalid ID supplied
+    //  *       '404':
+    //  *         description: Article not found
+    //  */
     // this.router.delete(`${this.path}/:email`, this.unsubscriber);
   }
 

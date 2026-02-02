@@ -1,7 +1,6 @@
 import { Pool } from "pg";
 import * as dotenv from "dotenv";
 import HashPasswordBcryptService from "../hashPassword/hashPasswordBcrypt.service";
-import EmailAlreadyExistException from "../exceptions/EmailAlreadyExistException";
 dotenv.config();
 
 const convertValue = (emails: string, passwordHashed: string) => {
@@ -24,9 +23,9 @@ async function initializeDatabase() {
     database: process.env.DB_DATABASE,
     password: process.env.DB_PASSWORD,
     port: Number(process.env.DB_PORT),
-    ssl: {
-      rejectUnauthorized: false, // Ignore la vérification du certificat (pour Render)
-    },
+    // ssl: {
+    //   rejectUnauthorized: false, // Ignore la vérification du certificat (pour Render)
+    // },
   });
 
   try {
@@ -41,7 +40,7 @@ async function initializeDatabase() {
     );
     await client.query(
       `
-        INSERT INTO subscriber(email, date_inscription, password, role, state) 
+        INSERT INTO subscriber(email, joined_at, password, role, state) 
             VALUES ${convertValue(process.env.ADMIN_EMAIL, passwordHashed)};
         `
       // [process.env.ADMIN_EMAIL, new Date(), passwordHashed, "admin", "active"]

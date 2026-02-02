@@ -1,4 +1,3 @@
-import { AddEmailDto } from "email/email.dto";
 import IUserRepository from "./usersRepository.interface";
 import EmailAlreadyExistException from "../exceptions/EmailAlreadyExistException";
 import { Users } from "./user.interface";
@@ -6,14 +5,13 @@ import { IHashPasswordService } from "hashPassword/hashPasswordService.interface
 import { IGenerateCode } from "generateCode/generateCode.interface";
 import Email from "email/email.interface";
 import UserNotFoundException from "../exceptions/UserNotFoundException";
-// import VerifyEmailService from "email/memory/verifyEmail.service";
-import { ChangePasswordDto, UpdateUserAccountDto } from "./user.dto";
-import PasswordIsNotNull from "exceptions/PasswordIsNotNullException";
+import { ChangePasswordDto } from "./user.dto";
 import AuthentificationService from "../authentification/authentification.service";
 import ISendMail from "../mail/sendMailPort.interface";
 import { decodedToken } from "../middlewares/auth.middleware";
 import AccessDenied from "../exceptions/AccessDeniedException";
 import { ContactUsDto } from "../contactUs/contactUs.dto";
+import HttpException from "../exceptions/HttpException";
 
 class UserService {
   constructor(
@@ -21,7 +19,7 @@ class UserService {
     private readonly generateCodeService: IGenerateCode,
     private readonly hashPasswordService: IHashPasswordService,
     private readonly authentificationService: AuthentificationService,
-    private readonly sendMailService: ISendMail
+    private readonly sendMailService: ISendMail,
   ) {}
 
   public async contactUs(contactInfo: ContactUsDto): Promise<void> {
@@ -29,95 +27,94 @@ class UserService {
       contactInfo.email,
       contactInfo.name,
       contactInfo.subject,
-      contactInfo.message
+      contactInfo.message,
     );
   }
 
-  public async createEditor(email: AddEmailDto): Promise<Users> {
+  public async createEditor(email: string): Promise<string> {
     await this.ConflictEmail(email);
     const codeGenerated = this.generateCodeService.getUniqueCodeGenerate();
-    const codeGeneratedHashed = await this.hashPasswordService.hashPassword(
-      codeGenerated
-    );
+    const codeGeneratedHashed =
+      await this.hashPasswordService.hashPassword(codeGenerated);
     const user = await this.userRepository.createUser(
-      email.email,
+      email,
       "editor",
       codeGeneratedHashed,
-      "inactive"
+      "inactive",
     );
     const token = this.authentificationService.createToken(
       user.id,
       user.role,
-      user.email
+      user.email,
     );
-    // await this.sendMailService.sendMailTo(
-    //   user.email,
-    //   `The url to activate your account : ${process.env.URL}/reset-password?token=${token.token}`,
-    //   "Active your account",
-    // );
     await this.sendMailService.sendMailTo(
       user.email,
       "Activation de compte",
       `${process.env.URL.split(",")[1]}/reset-password?token=${token.token}`,
       "Activer votre compte",
-      `Votre compte vient d'être créer, cliquer sur bouton pour l'activer.`
+      `Votre compte vient d'être créer, cliquer sur bouton pour l'activer.`,
     );
-    return user;
+    return token.token;
   }
 
-  public async receiveEmailWhenForgotPassword(
-    email: AddEmailDto
-  ): Promise<void> {
+  public async receiveEmailWhenForgotPassword(email: string): Promise<string> {
     const user = await this.getUserByEmail(email);
     if (!user) throw new UserNotFoundException();
     if (user.role == "user") throw new AccessDenied();
     const token = this.authentificationService.createToken(
       user.id,
       user.role,
-      user.email
+      user.email,
     );
     await this.sendMailService.sendMailTo(
       user.email,
       "Mis à jour de mot de passe",
       `${process.env.URL.split(",")[1]}/reset-password?token=${token.token}`,
       "Changer mon mot de passe",
-      `Cliquer sur ce bouton pour changer votre mot de passe.`
+      `Cliquer sur ce bouton pour changer votre mot de passe.`,
     );
-    // await this.sendMailService.sendMailTo(
-    //   user.email,
-    //   `The url to reset your password : ${process.env.URL}/reset-password?token=${token.token}`,
-    //   "Active your account"
-    // );
+    return token.token;
   }
 
-  public async getUserByEmail(email: AddEmailDto) {
-    return await this.userRepository.getUserByEmail(email.email);
+  public async getUserByEmail(email: string) {
+    return await this.userRepository.getUserByEmail(email);
   }
 
   public async activeAccount(newPassword: ChangePasswordDto): Promise<Users> {
     const tokenDecoded = decodedToken(newPassword.token);
-    const user = await this.getUserById(tokenDecoded?._id);
+    const user = await this.getUserById(Number(tokenDecoded?._id));
+    if (user.state == "active")
+      throw new HttpException(400, "Your account is already active");
     if (user.role == "user") throw new AccessDenied();
     const passwordHashed = await this.hashPasswordService.hashPassword(
-      newPassword.password
+      newPassword.password,
     );
-    return await this.userRepository.updateMyAccount(
-      user.id,
-      { ...user, password: passwordHashed },
-      "active"
-    );
+    return await this.userRepository.activeAccount(user.id, passwordHashed);
   }
 
-  public async addEmail(email: AddEmailDto): Promise<Users> {
+  public async updatePassword(newPassword: ChangePasswordDto): Promise<number> {
+    const tokenDecoded = decodedToken(newPassword.token);
+    const user = await this.getUserById(Number(tokenDecoded?._id));
+    if (user.state == "inactive")
+      throw new HttpException(400, "Your account isn't active");
+    if (user.role == "user") throw new AccessDenied();
+    const passwordHashed = await this.hashPasswordService.hashPassword(
+      newPassword.password,
+    );
+    await this.userRepository.updatePassword(user.id, passwordHashed);
+    return user.id
+  }
+
+  public async addEmail(email: string): Promise<Users> {
     await this.ConflictEmail(email);
-    return this.userRepository.createUser(email.email, "user");
+    return this.userRepository.createUser(email, "user");
   }
 
   public async getAllEmail(): Promise<Email[] | []> {
     return await this.userRepository.getAllEmail();
   }
 
-  public async deleteUser(userId: string): Promise<void> {
+  public async deleteUser(userId: number): Promise<void> {
     await this.UserNotFound(userId);
     await this.userRepository.deleteUser(userId);
   }
@@ -126,19 +123,19 @@ class UserService {
     return await this.userRepository.getAllUserEditor();
   }
 
-  public async getUserById(userId: string) {
+  public async getUserById(userId: number) {
     return await this.UserNotFound(userId);
   }
 
-  private async UserNotFound(userId: string) {
+  private async UserNotFound(userId: number) {
     const userFound = await this.userRepository.getUserById(userId);
     if (!userFound) throw new UserNotFoundException();
     return userFound;
   }
 
-  public async ConflictEmail(email: AddEmailDto) {
-    const emailUser = await this.userRepository.getUserByEmail(email.email);
-    if (emailUser) throw new EmailAlreadyExistException(email.email);
+  public async ConflictEmail(email: string) {
+    const emailUser = await this.userRepository.getUserByEmail(email);
+    if (emailUser) throw new EmailAlreadyExistException(email);
     return emailUser;
   }
 }

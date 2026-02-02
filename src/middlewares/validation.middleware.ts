@@ -24,4 +24,28 @@ export function validateDto(dtoClass: any) {
   };
 }
 
-export default validateDto;
+export const validateParams = (Dto: any) => {
+  return async (req, _res: Response, next) => {
+    const paramsInstance = plainToInstance(Dto, req.params);
+
+    const errors = await validate(paramsInstance, {
+      whitelist: true,
+      forbidNonWhitelisted: true,
+    });
+
+    if (errors.length > 0) {
+      const messages = errors
+        .map((e) => Object.values(e.constraints || {}))
+        .flat();
+
+      _res.status(400).send({
+        status: "error",
+        message: "Validation failed",
+        errors: messages,
+      });
+    } else {
+      req.params = paramsInstance;
+      next();
+    }
+  };
+};

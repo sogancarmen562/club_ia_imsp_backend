@@ -1,6 +1,5 @@
 import nodemailer, { Transporter } from "nodemailer";
 import ISendMail from "./sendMailPort.interface";
-import Email from "email/email.interface";
 import ContentEmails from "./contentEmail";
 
 class EmailSendNodeMailerService implements ISendMail {
@@ -21,7 +20,7 @@ class EmailSendNodeMailerService implements ISendMail {
     subjects: string,
     lien: string,
     textButton: string,
-    text: string
+    text: string,
   ) {
     const options = {
       from: `Club IA-IMSP ${process.env.EMAIL_USERNAME}`,
@@ -39,7 +38,7 @@ class EmailSendNodeMailerService implements ISendMail {
     email: string,
     subjects: string,
     yourName: string,
-    texts: string
+    texts: string,
   ) {
     const options = {
       from: `${process.env.EMAIL_USERNAME}`,
@@ -49,15 +48,36 @@ class EmailSendNodeMailerService implements ISendMail {
     };
     return options;
   }
-  
+
+  private mailOptions3(emails: string, subject: string, text: string) {
+    const options = {
+      from: `Club IA-IMSP ${process.env.EMAIL_USERNAME}`,
+      to: "undisclosed-recipients:;",
+      bcc: emails,
+      subject: subject,
+      text: text,
+    };
+    return options;
+  }
+
   public async contactUs(
     userEmail: string,
     yourName: string,
     subject: string,
-    message: string
+    message: string,
   ): Promise<void> {
     await this.transporter.sendMail(
-      this.mailOptions2(userEmail, subject, yourName, message)
+      this.mailOptions2(userEmail, subject, yourName, message),
+    );
+  }
+
+  public async sendMailToSubscriber(
+    userEmail: string,
+    subject: string,
+    text: string,
+  ): Promise<void> {
+    await this.transporter.sendMail(
+      this.mailOptions3(userEmail, subject, text),
     );
   }
 
@@ -66,10 +86,10 @@ class EmailSendNodeMailerService implements ISendMail {
     subject: string,
     lien: string,
     textButton: string,
-    text: string
+    text: string,
   ): Promise<void> {
     await this.transporter.sendMail(
-      this.mailOptions(userEmail, subject, lien, textButton, text)
+      this.mailOptions(userEmail, subject, lien, textButton, text),
     );
   }
 }

@@ -1,33 +1,27 @@
 import { IsIn, IsNotEmpty, IsOptional, IsString } from "class-validator";
 
-export class CreateArticleDto {
+export class CreateContentDto {
   @IsString()
   @IsNotEmpty()
   public title: string;
   @IsString()
   @IsNotEmpty()
   public contain: string;
-  @IsString()
-  @IsNotEmpty()
-  @IsIn(["article", "project"], {
-    message: 'Type must be either "article" or "project"',
-  })
-  public type: string;
 }
 
-export class UpdateArticleDto {
+export class ContentTypeParamDto {
+  @IsString()
+  @IsIn(["article", "project"], {
+    message: "type must be 'article' or 'project'",
+  })
+  type: string;
+}
+
+export class UpdateContentDto {
   @IsString()
   @IsOptional()
   public title?: string;
   @IsString()
   @IsOptional()
   public contain?: string;
-}
-
-export class AddFileDto {
-  public url: string;
-  public type: string;
-  public original_name: string;
-  public files_names: string;
-  public size: number;
 }

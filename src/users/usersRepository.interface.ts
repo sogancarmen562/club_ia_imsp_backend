@@ -1,6 +1,4 @@
-import {AddEmailDto} from "email/email.dto";
 import { Users } from "./user.interface";
-import { UpdateUserAccountDto } from "./user.dto";
 import Email from "email/email.interface";
 
 interface IUserRepository {
@@ -8,17 +6,14 @@ interface IUserRepository {
     email: string,
     role: string,
     passwordHashed?: string,
-    state?: string
+    state?: string,
   ): Promise<Users>;
-  deleteUser(userId: string): Promise<void>;
+  deleteUser(userId: number): Promise<void>;
   getAllUserEditor(): Promise<Users[] | []>;
-  updateMyAccount(
-    userId: string,
-    valueUpdated: UpdateUserAccountDto,
-    state: string
-  ): Promise<Users>;
+  activeAccount(userId: number, password: string): Promise<Users>;
+  updatePassword(userId: number, password: string): Promise<number>;
   getUserByEmail(email: string): Promise<Users>;
-  getUserById(userId: string): Promise<Users>;
+  getUserById(userId: number): Promise<Users>;
   getAllEmail(): Promise<Email[] | []>;
 }
 

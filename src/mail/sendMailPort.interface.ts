@@ -18,5 +18,10 @@ interface ISendMail {
     yourName: string,
     message: string
   ): Promise<void>;
+  sendMailToSubscriber(
+    userEmail: string,
+    subject: string,
+    text: string,
+  ): Promise<void> 
 }
 export default ISendMail;

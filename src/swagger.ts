@@ -12,18 +12,34 @@ const swaggerOptions = {
         email: "sogancarmen1@gmail.com",
       },
     },
+    components: {
+      securitySchemes: {
+        BearerAuth : {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+        },
+      },
+    },
+    security: [
+      {
+        BearerAuth: [],
+      },
+    ],
     servers: [
-      // {
-      //   url: "http://localhost:4000",
-      // },
-      { url: "https://club-ia-imsp-backend.onrender.com" },
+      {
+        url: "http://localhost:3000",
+      },
+      // { url: "https://club-ia-imsp-backend.onrender.com" },
     ],
   },
   apis: [
-    "./src/articles/*.ts",
+    "./src/content/*.ts",
     "./src/authentification/*.ts",
     "./src/email/*.ts",
     "./src/newsletters/*.ts",
+    "./src/users/*.ts",
+    "./src/contactUs/*.ts"
   ],
 };
 

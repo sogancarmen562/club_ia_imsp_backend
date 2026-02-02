@@ -4,7 +4,6 @@ import DataStoredInToken from "token/dataStorageInToken.interface";
 import jwt from "jsonwebtoken";
 import TokenData from "token/token.interface";
 import WrongCredentialsException from "../exceptions/WrongCredentialException";
-import UserService from "../users/user.service";
 import AccountIsNotActiveException from "../exceptions/AccountIsNotActiveException";
 import IUserRepository from "../users/usersRepository.interface";
 import UserNotFoundException from "../exceptions/UserNotFoundException";
@@ -29,8 +28,7 @@ class AuthentificationService {
       );
       if (isPasswordMatching) {
         const tokenData = this.createToken(user.id, user.role, user.email);
-        const cookie = this.createCookie(tokenData);
-        return cookie;
+        return tokenData;
       } else throw new WrongCredentialsException();
     } else throw new WrongCredentialsException();
   }
@@ -39,7 +37,7 @@ class AuthentificationService {
     return `Authorization=${tokenData.token}; Path=/; Max-Age=${tokenData.expiresIn}; SameSite=None; Secure=true; Partitioned`;
   }
 
-  public createToken(userId: string, role: string, email: string): TokenData {
+  public createToken(userId: number, role: string, email: string): TokenData {
     const expireIn = 60 * 60;
     const secret = process.env.JWT_SECRET;
     const dataStoredInToken: DataStoredInToken = {

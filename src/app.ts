@@ -35,7 +35,7 @@ class App {
   private initializeMiddleware(): void {
     this.app.use(bodyParser.json());
     this.app.use(cookieParser());
-    this.app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+    this.app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
   }
 
   private initializeErrorHanlding(): void {
@@ -49,10 +49,10 @@ class App {
             callback(new Error("CORS non autorisé pour cette origine"));
           }
         },
+        allowedHeaders: ["Content-Type", "Authorization"],
         credentials: true,
         methods: "GET, PUT, POST, DELETE, OPTIONS",
-        allowedHeaders: "Content-type,Accept,X-Access-Token,X-Key",
-      })
+      }),
     );
     // this.app.all("/*", function (req, res, next) {
     //   res.header("Access-Control-Allow-Origin", process.env.URL);
@@ -81,7 +81,7 @@ class App {
   private initalizeStaticFiles() {
     const uploadDir = path.join(
       __dirname,
-      "config/saveFilesInDiskServer/images"
+      "config/saveFilesInDiskServer/images",
     );
 
     if (!fs.existsSync(uploadDir)) {
@@ -89,15 +89,15 @@ class App {
     }
     this.app.use(
       "config/saveFilesInDiskServer/images",
-      express.static(uploadDir)
+      express.static(uploadDir),
     );
 
     this.app.get("/test-image/:filename", (req, res) => {
       res.sendFile(
         path.join(
           __dirname,
-          `config/saveFilesInDiskServer/images/${req.params.filename}`
-        )
+          `config/saveFilesInDiskServer/images/${req.params.filename}`,
+        ),
       );
     });
   }
@@ -127,7 +127,7 @@ class App {
     } catch (error) {
       console.error(
         "Erreur lors de la connexion à la base de données :",
-        error
+        error,
       );
     } finally {
       await pool.end();

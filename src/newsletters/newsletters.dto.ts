@@ -14,3 +14,12 @@ export class SendNewlettersDto {
   @IsNotEmpty()
   public text: string;
 }
+
+export class SendNewsLetterDto {
+  @IsNotEmpty()
+  @IsString()
+  public subject: string;
+  @IsString()
+  @IsNotEmpty()
+  public text: string;
+}
