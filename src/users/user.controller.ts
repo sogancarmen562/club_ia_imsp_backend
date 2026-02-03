@@ -228,7 +228,7 @@ class UserController implements Controller {
     /**
      * @swagger
      * /api/user/active:
-     *   patch:
+     *   put:
      *     tags:
      *       - Users
      *     summary: active account (EDITOR)
@@ -271,7 +271,7 @@ class UserController implements Controller {
      *             type: string
      *             nullable: true
      */
-    this.router.patch(
+    this.router.put(
       `${this.paths}/active`,
       validateDto(ChangePasswordDto),
       this.activeAccount,
