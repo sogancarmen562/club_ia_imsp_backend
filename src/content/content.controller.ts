@@ -504,7 +504,6 @@ class ContentController implements Controller {
         Number(req.params.id),
         articleInfo,
       );
-      console.log(articleUpdated)
       res.status(201).send(new Result(true, "All updated", articleUpdated));
     } catch (error) {
       if (error instanceof HttpException) {
@@ -547,7 +546,6 @@ class ContentController implements Controller {
       const allArticles = await this.articleService.getAllArticleOrProjects(
         req.params.type,
       );
-      console.log(allArticles);
       res
         .status(201)
         .send(new Result(true, `All ${req.params.type}`, allArticles));

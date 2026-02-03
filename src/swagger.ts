@@ -12,20 +12,20 @@ const swaggerOptions = {
         email: "sogancarmen1@gmail.com",
       },
     },
-    components: {
-      securitySchemes: {
-        BearerAuth : {
-          type: "http",
-          scheme: "bearer",
-          bearerFormat: "JWT",
-        },
-      },
-    },
-    security: [
-      {
-        BearerAuth: [],
-      },
-    ],
+    // components: {
+    //   securitySchemes: {
+    //     BearerAuth : {
+    //       type: "http",
+    //       scheme: "bearer",
+    //       bearerFormat: "JWT",
+    //     },
+    //   },
+    // },
+    // security: [
+    //   {
+    //     BearerAuth: [],
+    //   },
+    // ],
     servers: [
       {
         url: `http://localhost:${process.env.PORT}`,

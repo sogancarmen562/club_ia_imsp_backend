@@ -151,7 +151,6 @@ class PostgresContentRepository implements IArticlesRepository {
         "SELECT * FROM content WHERE type = $1;",
         [type],
       );
-      console.log(resultInformations);
       if (resultInformations.rowCount == 0) return [];
       const allArticle = resultInformations.rows.map((result) =>
         this.convertRowToContent(result),

@@ -9,9 +9,9 @@ export function authMiddleware(
   response: express.Response,
   next: express.NextFunction
 ) {
-  const token = request.headers['authorization'];
+  const token = request.cookies?.token;
   if (token) {
-    const user = decodedToken(token.split(' ')[1]);
+    const user = decodedToken(token);
     if (Number(user?._id) > 0) {
       request.user = {
         email: user?._email,
