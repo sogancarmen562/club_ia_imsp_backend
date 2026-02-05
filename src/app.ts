@@ -51,7 +51,7 @@ class App {
         },
         allowedHeaders: ["Content-Type", "Authorization"],
         credentials: true,
-        methods: "GET, PUT, POST, DELETE, OPTIONS",
+        methods: "GET, PUT, POST, DELETE, OPTIONS, PATCH",
       }),
     );
     // this.app.all("/*", function (req, res, next) {

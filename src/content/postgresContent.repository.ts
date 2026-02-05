@@ -36,6 +36,7 @@ class PostgresContentRepository implements IArticlesRepository {
         year: "numeric",
       }),
       filesUrl: rowContentCreated.medias,
+      commingSoonAt: rowContentCreated.comming_soon_at,
     };
 
     return article;
@@ -88,23 +89,29 @@ class PostgresContentRepository implements IArticlesRepository {
   public async createContent(
     newContent: CreateContentDto,
     type: string,
-    files?: string[],
+    options?: {
+      files?: string[];
+      commingSoonAt?: Date;
+    },
   ): Promise<Article> {
     try {
-      if (files) {
+      if (options?.files && options.files.length > 0) {
         const articleCreated = await this.insertArticleWithFilesInDatabase(
           newContent,
           type,
-          files,
+          options,
         );
         return this.convertRowToContent(articleCreated.rows[0]);
       }
       const articleCreated = await this.insertArticleInDatabase(
         newContent,
         type,
+        options,
       );
       return this.convertRowToContent(articleCreated.rows[0]);
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   public async isContentFoundByTitleExist(
@@ -162,21 +169,83 @@ class PostgresContentRepository implements IArticlesRepository {
   private async insertArticleInDatabase(
     article: CreateContentDto,
     type: string,
+    options?: {
+      files?: string[];
+      commingSoonAt?: Date;
+    },
   ) {
     try {
+      const parseDateOrNull = (value: unknown): Date | null => {
+        if (!value || typeof value !== "string" || value.trim() === "") {
+          return null;
+        }
+
+        const date = new Date(value);
+
+        if (Number.isNaN(date.getTime())) {
+          return null;
+        }
+
+        return date;
+      };
+      if (type == "event" && options.commingSoonAt) {
+        return await this.pool.query(
+          "INSERT INTO content(title, contain, created_at, updated_at, type, comming_soon_at) VALUES ($1, $2, $3, $4, $5, $6) returning id, title, contain, created_at, updated_at, type, comming_soon_at;",
+          [
+            article.title,
+            article.contain,
+            new Date(),
+            new Date(),
+            type,
+            parseDateOrNull(options.commingSoonAt),
+          ],
+        );
+      }
       return await this.pool.query(
         "INSERT INTO content(title, contain, created_at, updated_at, type) VALUES ($1, $2, $3, $4, $5) returning id, title, contain, created_at, updated_at, type;",
         [article.title, article.contain, new Date(), new Date(), type],
       );
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   private async insertArticleWithFilesInDatabase(
     article: CreateContentDto,
     type: string,
-    files: string[],
+    options?: {
+      files?: string[];
+      commingSoonAt?: Date;
+    },
   ) {
+    const parseDateOrNull = (value: unknown): Date | null => {
+      if (!value || typeof value !== "string" || value.trim() === "") {
+        return null;
+      }
+
+      const date = new Date(value);
+
+      if (Number.isNaN(date.getTime())) {
+        return null;
+      }
+
+      return date;
+    };
     try {
+      if (type == "event" && options.commingSoonAt) {
+        return await this.pool.query(
+          "INSERT INTO content(title, contain, created_at, updated_at, type, medias, comming_soon_at) VALUES ($1, $2, $3, $4, $5, $6::jsonb, $7) returning id, title, contain, created_at, updated_at, type, comming_soon_at, medias;",
+          [
+            article.title,
+            article.contain,
+            new Date(),
+            new Date(),
+            type,
+            JSON.stringify(options.files),
+            parseDateOrNull(options.commingSoonAt),
+          ],
+        );
+      }
       return await this.pool.query(
         "INSERT INTO content(title, contain, created_at, updated_at, type, medias) VALUES ($1, $2, $3, $4, $5, $6::jsonb) returning id, title, contain, created_at, updated_at, type, medias;",
         [
@@ -185,10 +254,12 @@ class PostgresContentRepository implements IArticlesRepository {
           new Date(),
           new Date(),
           type,
-          JSON.stringify(files),
+          JSON.stringify(options.files),
         ],
       );
-    } catch (error) {}
+    } catch (error) {
+      console.log(error)
+    }
   }
 }
 

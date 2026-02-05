@@ -60,11 +60,11 @@ class ContentController implements Controller {
      *     consumes:
      *       - multipart/form-data
      *     summary: Create a new content (ADMIN OR EDITOR)
-     *     operationId: "createArticle"
+     *     operationId: "createContent"
      *     parameters:
      *       - name: type
      *         in: path
-     *         description: Le type peut être article ou project
+     *         description: Le type peut être article ou project ou event(si event commingSoonAt est obligatoire)
      *         required: true
      *         schema:
      *           type: string
@@ -99,6 +99,9 @@ class ContentController implements Controller {
      *         contain:
      *           type: string
      *           example: "write a contain of document"
+     *         commingSoonAt:
+     *           type: Date
+     *           example: "20/20/1998"
      *         media:
      *           type: array
      *           items:
@@ -123,7 +126,7 @@ class ContentController implements Controller {
      *        - Content
      *      consumes:
      *        - application/json
-     *      summary: Updating an existing article
+     *      summary: Updating an existing article or project
      *      operationId: "updateArticleInformation"
      *      parameters:
      *        - name: id
@@ -586,14 +589,18 @@ class ContentController implements Controller {
         const newArticle = await this.articleService.createContent(
           article,
           req.params.type,
-          req.files,
+          {
+            files: req.files.map((file) => file),
+            commingSoonAt:
+              req.params.type == "event" ? article.commingSoonAt : null,
+          },
         );
         res
           .status(201)
           .send(
             new Result(
               true,
-              `${req.params.type} ${newArticle.title} is created!`,
+              `${req.params.type} ${newArticle?.title} is created!`,
               newArticle,
             ),
           );
@@ -601,18 +608,21 @@ class ContentController implements Controller {
         const newArticle = await this.articleService.createContent(
           article,
           req.params.type,
+          { files: null, commingSoonAt: req.params.type == "event" ? article.commingSoonAt : null, },
         );
+        console.log(newArticle)
         res
           .status(201)
           .send(
             new Result(
               true,
-              `${req.params.type} ${newArticle.title} is created!`,
+              `${req.params.type} ${newArticle?.title} is created!`,
               newArticle,
             ),
           );
       }
     } catch (error) {
+      console.log(error);
       if (error instanceof HttpException) {
         res.status(error.status).send(new Result(false, error.message, null));
       } else {

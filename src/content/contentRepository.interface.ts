@@ -5,7 +5,10 @@ interface IContentRepository {
   createContent(
     newContent: CreateContentDto,
     type: string,
-    files?: string[],
+    options?: {
+      files?: string[];
+      commingSoonAt?: Date;
+    },
   ): Promise<Content>;
   isContentFoundByTitleExist(title: string, type: string): Promise<boolean>;
   getAllContent(type: string): Promise<Content[] | []>;

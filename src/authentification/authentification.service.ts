@@ -37,13 +37,14 @@ class AuthentificationService {
     return `Authorization=${tokenData.token}; Path=/; Max-Age=${tokenData.expiresIn}; SameSite=None; Secure=true; Partitioned`;
   }
 
-  public createToken(userId: number, role: string, email: string): TokenData {
+  public createToken(userId: number, role: string, email: string, isForActivation?: boolean): TokenData {
     const expireIn = 60 * 60;
     const secret = process.env.JWT_SECRET;
     const dataStoredInToken: DataStoredInToken = {
       _id: userId,
       _role: role,
       _email: email,
+      _siForActivation: isForActivation
     };
     return {
       expiresIn: expireIn,

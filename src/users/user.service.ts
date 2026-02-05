@@ -46,6 +46,7 @@ class UserService {
       user.id,
       user.role,
       user.email,
+      true
     );
     await this.sendMailService.sendMailTo(
       user.email,
@@ -65,6 +66,7 @@ class UserService {
       user.id,
       user.role,
       user.email,
+      false
     );
     await this.sendMailService.sendMailTo(
       user.email,

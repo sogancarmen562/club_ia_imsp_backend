@@ -6,5 +6,6 @@ interface Content {
   createdAt: string;
   updatedAt: string;
   filesUrl: string[];
+  commingSoonAt?: Date;
 }
 export default Content;

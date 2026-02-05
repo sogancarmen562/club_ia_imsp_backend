@@ -207,9 +207,19 @@ class AuthentificationController implements Controller {
     request: express.Request,
     response: express.Response,
   ) => {
-    response.setHeader("Set-Cookie", [
-      "Authorization=; Path=/; Max-Age=0; SameSite=None; Secure=true; Partitioned",
-    ]);
+    const isProduction = process.env.NODE_ENV === "production";
+
+    response.setHeader(
+      "Set-Cookie",
+      serialize("token", "", {
+        httpOnly: true,
+        secure: isProduction,
+        sameSite: "lax",
+        path: "/",
+        maxAge: 0,
+        expires: new Date(0),
+      }),
+    );
     response.sendStatus(200);
   };
 }

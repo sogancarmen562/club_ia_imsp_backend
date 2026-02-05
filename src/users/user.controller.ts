@@ -280,7 +280,7 @@ class UserController implements Controller {
     /**
      * @swagger
      * /api/user/password:
-     *   patch:
+     *   put:
      *     tags:
      *       - Users
      *     summary: Update password (Account active)
@@ -314,7 +314,7 @@ class UserController implements Controller {
      *             type: string
      *             nullable: true
      */
-    this.router.patch(
+    this.router.put(
       `${this.paths}/password`,
       validateDto(ChangePasswordDto),
       this.updatePassword,

@@ -72,33 +72,39 @@ class ArticleService {
   public async createContent(
     newArticle: CreateContentDto,
     type: string,
-    files?: any,
+    options?: {
+      files?: any[];
+      commingSoonAt?: Date;
+    },
   ): Promise<Article> {
     const frontEndLink = process.env.URL.split(",")[0];
 
     await this.checkIfArticleTitleAlreadyExist(newArticle.title, type);
-    if (files) {
+    if (options?.files) {
       const results: { secure_url: string }[] =
-        await this.cloudinaryService.uploadFiles(files);
+        await this.cloudinaryService.uploadFiles(options.files);
       const urls = results.map((result) => result.secure_url);
       const articleCreatedWithFiles: Article =
-        await this.repository.createContent(newArticle, type, urls);
+        await this.repository.createContent(newArticle, type, {
+          files: urls,
+          commingSoonAt: options?.commingSoonAt ?? null,
+        });
       const newsLettersInformations: SendNewlettersDto = {
         subject: "Nouvel article ajouté",
         link:
-          articleCreatedWithFiles.type == "project"
-            ? `${frontEndLink}/project/posts?lire=${articleCreatedWithFiles.id}-${articleCreatedWithFiles.title
+          articleCreatedWithFiles?.type == "project"
+            ? `${frontEndLink}/project/posts?lire=${articleCreatedWithFiles.id}-${articleCreatedWithFiles?.title
                 .normalize("NFD")
                 .replace(/[\u0300-\u036f]/g, "")
                 .replace(/[#,',\s]+/g, "-")
                 .toLowerCase()}`
-            : `${frontEndLink}/actualities/posts?lire=${articleCreatedWithFiles.id}-${articleCreatedWithFiles.title
+            : `${frontEndLink}/actualities/posts?lire=${articleCreatedWithFiles?.id}-${articleCreatedWithFiles?.title
                 .normalize("NFD")
                 .replace(/[\u0300-\u036f]/g, "")
                 .replace(/[#,',\s]+/g, "-")
                 .toLowerCase()}`,
         textButton: "Cliquer ici",
-        text: `Titre de l'article : ${newArticle.title}`,
+        text: `Titre de l'article : ${newArticle?.title}`,
       };
       await this.newsletterService.sendNewsletters(newsLettersInformations);
       return articleCreatedWithFiles;
@@ -106,23 +112,26 @@ class ArticleService {
       const articleCreated: Article = await this.repository.createContent(
         newArticle,
         type,
+        {
+          commingSoonAt: options?.commingSoonAt,
+        },
       );
       const newsLettersInformations: SendNewlettersDto = {
         subject: "Nouvel article ajouté",
         link:
-          articleCreated.type == "project"
+          articleCreated?.type == "project"
             ? `${frontEndLink}/project/posts?lire=${articleCreated.id}-${articleCreated.title
                 .normalize("NFD")
                 .replace(/[\u0300-\u036f]/g, "")
                 .replace(/[#,',\s]+/g, "-")
                 .toLowerCase()}`
-            : `${frontEndLink}/actualities/posts?lire=${articleCreated.id}-${articleCreated.title
+            : `${frontEndLink}/actualities/posts?lire=${articleCreated?.id}-${articleCreated?.title
                 .normalize("NFD")
                 .replace(/[\u0300-\u036f]/g, "")
                 .replace(/[#,',\s]+/g, "-")
                 .toLowerCase()}`,
         textButton: "Cliquer ici",
-        text: `Titre de l'article : ${newArticle.title}`,
+        text: `Titre de l'article : ${newArticle?.title}`,
       };
       await this.newsletterService.sendNewsletters(newsLettersInformations);
       return articleCreated;

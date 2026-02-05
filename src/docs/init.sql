@@ -6,6 +6,7 @@ CREATE TABLE public.content (
 	updated_at date NOT NULL,
 	type varchar NOT NULL,
 	medias jsonb,
+	comming_soon_at date,
 	CONSTRAINT articles_pk PRIMARY KEY (id)
 );
 
