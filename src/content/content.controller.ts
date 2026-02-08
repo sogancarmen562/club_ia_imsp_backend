@@ -101,7 +101,7 @@ class ContentController implements Controller {
      *           example: "write a contain of document"
      *         commingSoonAt:
      *           type: Date
-     *           example: "20/20/1998"
+     *           example: "2022-02-18"
      *         media:
      *           type: array
      *           items:
@@ -121,11 +121,11 @@ class ContentController implements Controller {
     /**
      * @swagger
      * /api/content/{id}:
-     *    patch:
+     *    put:
      *      tags:
      *        - Content
      *      consumes:
-     *        - application/json
+     *        - multipart/form-data
      *      summary: Updating an existing article or project
      *      operationId: "updateArticleInformation"
      *      parameters:
@@ -140,7 +140,7 @@ class ContentController implements Controller {
      *        description: name and description are REQUIRED but files is OPTIONNAL.
      *        required: true
      *        content:
-     *          application/json:
+     *          multipart/form-data:
      *            schema:
      *              $ref: '#/components/schemas/UpdateArticle'
      *      responses:
@@ -167,8 +167,16 @@ class ContentController implements Controller {
      *         contain:
      *           type: string
      *           example: "write a contain of document"
+     *         commingSoonAt:
+     *           type: Date
+     *           example: "2022-02-18"
+     *         media:
+     *           type: array
+     *           item:
+     *             type: string
+     *             format: binary
      */
-    this.router.patch(
+    this.router.put(
       `${this.paths}/:id`,
       authMiddleware,
       authorizeRoles("admin", "editor"),
@@ -503,11 +511,19 @@ class ContentController implements Controller {
   ) => {
     try {
       const articleInfo: UpdateContentDto = req.body;
+
       const articleUpdated = await this.articleService.updateArticleInformation(
         Number(req.params.id),
         articleInfo,
+        {
+          files: Array.isArray(req.files) ? req.files : null,
+          commingSoonAt: articleInfo.commingSoon ?? null,
+        },
       );
-      res.status(201).send(new Result(true, "All updated", articleUpdated));
+
+      res
+        .status(200)
+        .send(new Result(true, "Article mis à jour", articleUpdated));
     } catch (error) {
       if (error instanceof HttpException) {
         res.status(error.status).send(new Result(false, error.message, null));
@@ -608,9 +624,13 @@ class ContentController implements Controller {
         const newArticle = await this.articleService.createContent(
           article,
           req.params.type,
-          { files: null, commingSoonAt: req.params.type == "event" ? article.commingSoonAt : null, },
+          {
+            files: null,
+            commingSoonAt:
+              req.params.type == "event" ? article.commingSoonAt : null,
+          },
         );
-        console.log(newArticle)
+        console.log(newArticle);
         res
           .status(201)
           .send(

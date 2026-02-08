@@ -76,14 +76,36 @@ class PostgresContentRepository implements IArticlesRepository {
   public async updateContentInformation(
     articleId: number,
     article: UpdateContentDto,
+    options?: {
+      files?: any[] | null;
+      commingSoonAt?: Date | null;
+    },
   ): Promise<Article> {
-    try {
-      const result = await this.pool.query(
-        "UPDATE content SET title = $1, contain = $2, updated_at = $3 WHERE id = $4 RETURNING * ",
-        [article.title, article.contain, new Date(), articleId],
-      );
-      return this.convertRowToContent(result.rows[0]);
-    } catch (error) {}
+    const result = await this.pool.query(
+      `
+    UPDATE content
+    SET
+      title = COALESCE(NULLIF($1, ''), title),
+      contain = COALESCE(NULLIF($2, ''), contain),
+      comming_soon_at = COALESCE($3, comming_soon_at),
+      medias = CASE
+        WHEN $4::jsonb IS NULL THEN medias
+        ELSE COALESCE(medias, '[]'::jsonb) || $4::jsonb
+      END,
+      updated_at = NOW()
+    WHERE id = $5
+    RETURNING *;
+    `,
+      [
+        article.title ?? "",
+        article.contain ?? "",
+        options?.commingSoonAt ?? null,
+        options?.files ? JSON.stringify(options.files) : null,
+        articleId,
+      ],
+    );
+
+    return this.convertRowToContent(result.rows[0]);
   }
 
   public async createContent(
@@ -258,7 +280,7 @@ class PostgresContentRepository implements IArticlesRepository {
         ],
       );
     } catch (error) {
-      console.log(error)
+      // console.log(error)
     }
   }
 }

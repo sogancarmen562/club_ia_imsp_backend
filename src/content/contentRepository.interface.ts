@@ -19,6 +19,10 @@ interface IContentRepository {
   updateContentInformation(
     articleId: number,
     article: UpdateContentDto,
+    options?: {
+      files?: any[];
+      commingSoonAt?: Date;
+    },
   ): Promise<Content>;
   updateDate(articleId: number): Promise<void>;
   getNumberOfAllMedias(): Promise<Number>;

@@ -31,18 +31,26 @@ class ArticleService {
   public async updateArticleInformation(
     articleId: number,
     articleDto: UpdateContentDto,
+    options?: {
+      files?: any[];
+      commingSoonAt?: Date;
+    },
   ): Promise<Article> {
     const articleFound = await this.ContentNotFound(articleId);
-    const articleExistingWithTitle =
-      await this.repository.isContentFoundByTitleExist(
+
+    if (articleDto.title && articleDto.title !== articleFound.title) {
+      const exists = await this.repository.isContentFoundByTitleExist(
         articleDto.title,
         articleFound.type,
       );
-    if (articleExistingWithTitle)
-      throw new ContentAlreadyException(articleDto.title, articleFound.type);
-    return await this.repository.updateContentInformation(articleId, {
-      title: articleDto.title ?? articleFound.title,
-      contain: articleDto.contain ?? articleFound.contain,
+      if (exists) {
+        throw new ContentAlreadyException(articleDto.title, articleFound.type);
+      }
+    }
+
+    return this.repository.updateContentInformation(articleId, articleDto, {
+      files: options?.files?.length ? options.files : null,
+      commingSoonAt: options?.commingSoonAt ?? null,
     });
   }
 

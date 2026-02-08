@@ -38,4 +38,7 @@ export class UpdateContentDto {
   @IsString()
   @IsOptional()
   public contain?: string;
+  @IsString()
+  @IsOptional()
+  public commingSoon?: Date;
 }
