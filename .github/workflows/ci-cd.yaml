@@ -43,7 +43,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Push images to Docker Hub
-        run: docker compose --env-file .env.ci push
+        run: docker compose --env-file .env push
 
       - name: Deploy to VPS
         uses: appleboy/ssh-action@v1.0.0
