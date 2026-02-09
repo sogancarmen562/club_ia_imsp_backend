@@ -46,4 +46,4 @@ jobs:
           script: |
             docker pull ${{ secrets.DOCKER_USERNAME }}/club-ia-backend:latest
             docker stop myapp || true && docker rm myapp || true
-            docker run -d --name myapp -p 3000:3000 ${{ secrets.DOCKER_USERNAME }}/club-ia-backend:latest
+            docker run -d --name myapp -p 5000:5000 ${{ secrets.DOCKER_USERNAME }}/club-ia-backend:latest
