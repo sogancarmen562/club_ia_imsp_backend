@@ -27,7 +27,7 @@ class AuthentificationController implements Controller {
     /**
      * @swagger
      * tags:
-     *   - name: Authentification12
+     *   - name: Authentification
      *     description: Operations about authentification
      */
 
