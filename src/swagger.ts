@@ -28,7 +28,7 @@ const swaggerOptions = {
     // ],
     servers: [
       {
-        url: "https://sogancarmen.pro"
+        url: ["https://sogancarmen.pro",`http://localhost:${process.env.PORT}`]
       }
       // {
       //   url: `http://localhost:${process.env.PORT}`,
