@@ -33,7 +33,7 @@ jobs:
           echo "DB_DATABASE=${{ secrets.DB_DATABASE }}" >> .env
           echo "DB_PORT=5432" >> .env
 
-      - name: Build Docker image
+      - name: Build Docker image (no cache)
         run: docker build --no-cache -t ${{ secrets.DOCKER_USERNAME }}/club_ia_backend:latest .
 
       - name: Login to Docker Hub
@@ -42,9 +42,8 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Push Docker image1
+      - name: Push Docker image
         run: docker push ${{ secrets.DOCKER_USERNAME }}/club_ia_backend:latest
-
 
       - name: Deploy to VPS
         uses: appleboy/ssh-action@v1.0.0
@@ -55,6 +54,10 @@ jobs:
           script: |
             cd club_ia_imsp_backend
             docker pull ${{ secrets.DOCKER_USERNAME }}/club_ia_backend:latest
-            docker compose up -d
+            # Arrêter et supprimer les conteneurs existants
+            docker compose down
+            # Recréer et rebuild les conteneurs
+            docker compose up -d --build --force-recreate
+            # Lancer les migrations et seed
             docker compose run --rm migrate
             docker compose run --rm seed

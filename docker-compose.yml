@@ -21,7 +21,7 @@ services:
 
   migrate:
     build: .
-    container_name: journal_diaspora_migrate
+    container_name: migrate
     env_file:
       - .env
     depends_on:
@@ -31,7 +31,7 @@ services:
 
   seed:
     build: .
-    container_name: journal_diaspora_seed
+    container_name: seed
     env_file:
       - .env
     depends_on:
