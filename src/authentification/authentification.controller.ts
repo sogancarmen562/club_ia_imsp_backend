@@ -37,7 +37,7 @@ class AuthentificationController implements Controller {
      *   post:
      *     tags:
      *       - Authentification
-     *     summary: Logs in and returns the authentication  token
+     *     summary: Logs in and returnss the authentication  token
      *     operationId: "logginIn"
      *     requestBody:
      *       description: A JSON object containing the login and password.
