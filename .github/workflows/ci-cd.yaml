@@ -53,5 +53,8 @@ jobs:
           key: ${{ secrets.SSH_KEY_PRIVATE }}
           script: |
             cd club_ia_imsp_backend
+            docker compose down
+            docker compose rm -f
+            docker image prune -f
             docker compose pull
             docker compose up -d --build
