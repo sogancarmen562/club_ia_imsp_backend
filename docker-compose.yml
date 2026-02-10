@@ -1,5 +1,5 @@
 services:
-  club_ia_backennd:
+  club_ia_backend:
     build: .
     ports:
       - '${PORT}:${PORT}'
