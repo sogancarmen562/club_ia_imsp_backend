@@ -43,7 +43,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Push images to Docker Hub
-        run: docker compose --env-file .env push carmensogan20/carmen:latest
+        run: docker compose --env-file .env push club_ia_backennd:latest
 
       - name: Deploy to VPS
         uses: appleboy/ssh-action@v1.0.0
@@ -53,5 +53,5 @@ jobs:
           key: ${{ secrets.SSH_KEY_PRIVATE }}
           script: |
             cd club_ia_imsp_backend
-            docker compose pull carmensogan20/carmen:latest
+            docker compose pull club_ia_backennd:latest
             docker compose up -d --build

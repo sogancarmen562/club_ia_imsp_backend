@@ -1,5 +1,5 @@
 services:
-  journal_diaspora_api:
+  club_ia_backennd:
     build: .
     ports:
       - '${PORT}:${PORT}'
