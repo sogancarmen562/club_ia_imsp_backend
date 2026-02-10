@@ -52,6 +52,7 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.SSH_KEY_PRIVATE }}
           script: |
+            cd /home/debian
             docker pull ${{ secrets.DOCKER_USERNAME }}/club_ia_backend:latest
             docker compose down
             docker compose up -d --force-recreate
