@@ -28,8 +28,11 @@ const swaggerOptions = {
     // ],
     servers: [
       {
-        url: `http://localhost:${process.env.PORT}`,
-      },
+        url: "https://sogancarmen.pro"
+      }
+      // {
+      //   url: `http://localhost:${process.env.PORT}`,
+      // },
       // { url: "https://club-ia-imsp-backend.onrender.com" },
     ],
   },
