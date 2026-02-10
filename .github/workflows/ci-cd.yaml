@@ -53,11 +53,12 @@ jobs:
           key: ${{ secrets.SSH_KEY_PRIVATE }}
           script: |
             cd club_ia_imsp_backend
+            # Récupérer la dernière image
             docker pull ${{ secrets.DOCKER_USERNAME }}/club_ia_backend:latest
-            # Arrêter et supprimer les conteneurs existants
+            # Arrêter et supprimer les anciens conteneurs
             docker compose down
-            # Recréer et rebuild les conteneurs
-            docker compose up -d --build --force-recreate
+            # Recréer tous les conteneurs avec la nouvelle image
+            docker compose up -d --force-recreate
             # Lancer les migrations et seed
             docker compose run --rm migrate
             docker compose run --rm seed

@@ -1,6 +1,8 @@
+version: "3.9"
+
 services:
   club_ia_backend:
-    build: .
+    image: carmensogan20/club_ia_backend:latest
     ports:
       - '${PORT}:${PORT}'
     env_file:
@@ -17,11 +19,11 @@ services:
     ports:
       - '${DB_PORT}:5432'
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql/data'
 
   migrate:
-    build: .
-    container_name: migrate
+    image: carmensogan20/club_ia_backend:latest
+    container_name: journal_diaspora_migrate
     env_file:
       - .env
     depends_on:
@@ -30,13 +32,13 @@ services:
     restart: "no"
 
   seed:
-    build: .
-    container_name: seed
+    image: carmensogan20/club_ia_backend:latest
+    container_name: journal_diaspora_seed
     env_file:
       - .env
     depends_on:
       - db
-    command: npm run seed
+    command: pnpm run seed
     restart: "no"
 
 volumes:
