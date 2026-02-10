@@ -37,6 +37,7 @@ jobs:
           echo "DB_PASSWORD=carmen" >> .env
           echo "DB_DATABASE=mydb" >> .env
           echo "DB_PORT=5432" >> .env
+          echo "DOCKER_TAG=latest" >> .env
 
       # 6️⃣ Build des images Docker
       - name: Build Docker images
