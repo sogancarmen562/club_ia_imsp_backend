@@ -59,7 +59,7 @@ jobs:
       # 9️⃣ Push des images sur Docker Hub (latest + SHA)
       - name: Push images to Docker Hub
         run: |
-          IMAGE_NAME=ton-utilisateur/club-ia-backend
+          IMAGE_NAME=carmensogan20/club-ia-backend
           IMAGE_TAG=${GITHUB_SHA}
           docker push $IMAGE_NAME:$IMAGE_TAG
           docker push $IMAGE_NAME:latest
