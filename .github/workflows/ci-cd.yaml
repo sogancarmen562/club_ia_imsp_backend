@@ -11,49 +11,40 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Récupérer le code
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      # 2️⃣ Installer Node.js
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 18
 
-      # 3️⃣ Installer pnpm
       - name: Install pnpm
         run: npm install -g pnpm
 
-      # 4️⃣ Installer les dépendances
       - name: Install dependencies
         run: pnpm install
 
-      # 5️⃣ Créer le fichier .env
       - name: Create .env file
         run: |
           echo "PORT=5000" > .env
           echo "DB_USER=myuser" >> .env
           echo "DB_PASSWORD=carmen" >> .env
           echo "DB_DATABASE=mydb" >> .env
+          echo "DB_PORT=5432" >> .env
 
-      # 6️⃣ Build des images Docker 1
       - name: Build Docker images
         run: docker compose --env-file .env build
 
-      # 8️⃣ Login sur Docker Hub
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # 9️⃣ Push des images sur Docker Hub (latest + SHA)
       - name: Push images to Docker Hub
-        run: |
-          docker push carmensogan20/club-ia-backend:latest
+        run: docker compose --env-file .env push
 
-      # 🔟 Déploiement sur VPS
       - name: Deploy to VPS
         uses: appleboy/ssh-action@v1.0.0
         with:
@@ -62,8 +53,5 @@ jobs:
           key: ${{ secrets.SSH_KEY_PRIVATE }}
           script: |
             cd club_ia_imsp_backend
-            docker compose down
-            docker compose rm -f
-            docker image prune -f
             docker compose pull
             docker compose up -d --build
