@@ -37,7 +37,7 @@ jobs:
           echo "DB_PASSWORD=carmen" >> .env
           echo "DB_DATABASE=mydb" >> .env
 
-      # 6️⃣ Build des images Docker
+      # 6️⃣ Build des images Docker 1
       - name: Build Docker images
         run: docker compose --env-file .env build
 
