@@ -18,8 +18,6 @@ services:
       POSTGRES_DB: ${DB_DATABASE}
     ports:
       - '${DB_PORT}:5432'
-    volumes:
-      - pgdata:/var/lib/postgresql/data'
 
   migrate:
     image: carmensogan20/club_ia_backend:latest
@@ -40,6 +38,3 @@ services:
       - db
     command: pnpm run seed
     restart: "no"
-
-volumes:
-  pgdata:
