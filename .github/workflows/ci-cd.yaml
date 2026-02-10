@@ -45,7 +45,7 @@ jobs:
       - name: Push Docker image--
         run: docker push ${{ secrets.DOCKER_USERNAME }}/club_ia_backend:latest
 
-      - name: Deploy to VPS-
+      - name: Deploy to VPS--
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.VPS_IP }}
