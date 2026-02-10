@@ -5,7 +5,7 @@ const swaggerOptions = {
   swaggerDefinition: {
     openapi: "3.0.0",
     info: {
-      title: "Backend club IA API",
+      title: "Backend club IA API 1",
       version: "1.0.0",
       description: "Documentation of backend club IA API",
       contact: {
