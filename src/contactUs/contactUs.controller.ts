@@ -10,6 +10,8 @@ import AuthentificationService from "../authentification/authentification.servic
 import { ContactUsDto } from "../contactUs/contactUs.dto";
 import UserService from "../users/user.service";
 import PostgresUserRepository from "../users/postgresUser.repository";
+import PostgresTokenRepository from "../token/postgresToken.repository";
+import TokenService from "../token/token.service";
 
 class ContactUsController implements Controller {
   public paths: string = "/api/contact-us";
@@ -23,6 +25,7 @@ class ContactUsController implements Controller {
       new PostgresUserRepository(),
     ),
     new EmailSendNodeMailerService(),
+    new TokenService(new PostgresTokenRepository()),
   );
 
   constructor() {

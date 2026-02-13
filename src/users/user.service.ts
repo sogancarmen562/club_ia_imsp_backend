@@ -12,6 +12,9 @@ import { decodedToken } from "../middlewares/auth.middleware";
 import AccessDenied from "../exceptions/AccessDeniedException";
 import { ContactUsDto } from "../contactUs/contactUs.dto";
 import HttpException from "../exceptions/HttpException";
+import TokenService from "token/token.service";
+import TokenNotFoundException from "../exceptions/tokenNotFoundException";
+import TokenAlreadyUsedException from "../exceptions/TokenAlreadyUsedException";
 
 class UserService {
   constructor(
@@ -20,6 +23,7 @@ class UserService {
     private readonly hashPasswordService: IHashPasswordService,
     private readonly authentificationService: AuthentificationService,
     private readonly sendMailService: ISendMail,
+    private readonly tokenService: TokenService,
   ) {}
 
   public async contactUs(contactInfo: ContactUsDto): Promise<void> {
@@ -46,7 +50,7 @@ class UserService {
       user.id,
       user.role,
       user.email,
-      true
+      true,
     );
     await this.sendMailService.sendMailTo(
       user.email,
@@ -55,6 +59,7 @@ class UserService {
       "Activer votre compte",
       `Votre compte vient d'être créer, cliquer sur bouton pour l'activer.`,
     );
+    await this.tokenService.store(token.token);
     return token.token;
   }
 
@@ -66,7 +71,7 @@ class UserService {
       user.id,
       user.role,
       user.email,
-      false
+      false,
     );
     await this.sendMailService.sendMailTo(
       user.email,
@@ -75,6 +80,7 @@ class UserService {
       "Changer mon mot de passe",
       `Cliquer sur ce bouton pour changer votre mot de passe.`,
     );
+    await this.tokenService.store(token.token);
     return token.token;
   }
 
@@ -91,10 +97,19 @@ class UserService {
     const passwordHashed = await this.hashPasswordService.hashPassword(
       newPassword.password,
     );
-    return await this.userRepository.activeAccount(user.id, passwordHashed);
+    const userActive = await this.userRepository.activeAccount(
+      user.id,
+      passwordHashed,
+    );
+    return userActive;
   }
 
   public async updatePassword(newPassword: ChangePasswordDto): Promise<number> {
+    const isTokenExisting = await this.tokenService.getStatus(
+      newPassword.token,
+    );
+    if (isTokenExisting == null) throw new TokenNotFoundException();
+    if (isTokenExisting) throw new TokenAlreadyUsedException();
     const tokenDecoded = decodedToken(newPassword.token);
     const user = await this.getUserById(Number(tokenDecoded?._id));
     if (user.state == "inactive")
@@ -104,7 +119,8 @@ class UserService {
       newPassword.password,
     );
     await this.userRepository.updatePassword(user.id, passwordHashed);
-    return user.id
+    await this.tokenService.toggleStatus(newPassword.token);
+    return user.id;
   }
 
   public async addEmail(email: string): Promise<Users> {

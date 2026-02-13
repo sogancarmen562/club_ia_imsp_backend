@@ -20,4 +20,9 @@ CREATE TABLE public.subscriber (
 	CONSTRAINT subscriber_pk PRIMARY KEY (id)
 );
 
-
+CREATE TABLE public.token(
+	id serial NOT NULL,
+	value varchar(255) NOT NULL,
+	is_used boolean NOT NULL DEFAULT false,
+	CONSTRAINT token_pk PRIMARY KEY(id)
+);
