@@ -18,6 +18,8 @@ import authorizeRoles from "../middlewares/role.middleware";
 import AuthentificationService from "../authentification/authentification.service";
 import { ContactUsDto } from "../contactUs/contactUs.dto";
 import { UserTypeParamDto } from "../email/email.dto";
+import PostgresTokenRepository from "../token/postgresToken.repository";
+import TokenService from "../token/token.service";
 
 class UserController implements Controller {
   public paths: string = "/api/user";
@@ -31,6 +33,7 @@ class UserController implements Controller {
       new PostgresUserRepository(),
     ),
     new EmailSendNodeMailerService(),
+    new TokenService(new PostgresTokenRepository()),
   );
 
   constructor() {

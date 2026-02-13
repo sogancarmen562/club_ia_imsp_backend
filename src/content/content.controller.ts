@@ -24,6 +24,8 @@ import {
   CreateContentDto,
   UpdateContentDto,
 } from "./content.dto";
+import TokenService from "../token/token.service";
+import PostgresTokenRepository from "../token/postgresToken.repository";
 
 class ContentController implements Controller {
   public paths = "/api/content";
@@ -41,6 +43,7 @@ class ContentController implements Controller {
           new PostgresUserRepository(),
         ),
         new EmailSendNodeMailerService(),
+        new TokenService(new PostgresTokenRepository()),
       ),
     ),
     new CloudinaryService(),

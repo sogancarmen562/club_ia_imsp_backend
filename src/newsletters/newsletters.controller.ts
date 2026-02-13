@@ -14,6 +14,8 @@ import HashPasswordBcryptService from "../hashPassword/hashPasswordBcrypt.servic
 import authorizeRoles from "../middlewares/role.middleware";
 import { authMiddleware } from "../middlewares/auth.middleware";
 import AuthentificationService from "../authentification/authentification.service";
+import PostgresTokenRepository from "../token/postgresToken.repository";
+import TokenService from "../token/token.service";
 
 class NewslettersController implements Controller {
   public paths: string = "/api/newsletter";
@@ -28,7 +30,8 @@ class NewslettersController implements Controller {
         new HashPasswordBcryptService(),
         new PostgresUserRepository()
       ),
-      new EmailSendNodeMailerService()
+      new EmailSendNodeMailerService(),
+      new TokenService(new PostgresTokenRepository()),
     )
   );
 
