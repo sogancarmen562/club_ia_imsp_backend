@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   club_ia_backend:
     image: carmensogan20/club_ia_backend:latest
