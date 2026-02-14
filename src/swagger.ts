@@ -8,7 +8,7 @@ const swaggerOptions = {
       title: "Backend club IA API",
       version: "1.0.0",
       description:
-        "Documentation of backend club IA API. Information de connexion de l'admin : Email: admin@admin.com, Password: adminPassword",
+        "Documentation of backend club IA API. Information de connexion de l'admin : Email => admin@admin.com, Password => adminPassword",
       contact: {
         email: "sogancarmen1@gmail.com",
       },
